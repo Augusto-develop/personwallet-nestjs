@@ -1,0 +1,216 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id              String    @id @default(uuid())
+    name            String    @db.VarChar(50)
+    email           String    @unique @db.VarChar(100)
+    emailVerifiedAt DateTime? @map("email_verified_at")
+    password        String    @db.VarChar(255)
+    rememberToken   String?   @map("remember_token") @db.VarChar(255)
+    createdAt       DateTime  @default(now()) @map("created_at")
+    updatedAt       DateTime  @updatedAt @map("updated_at")
+
+    @@map("users")
+}
+
+model PasswordReset {
+    email     String    @id
+    token     String
+    createdAt DateTime? @map("created_at")
+
+    @@index([email])
+    @@map("password_resets")
+}
+
+model FailedJob {
+    id         String   @id @default(uuid())
+    connection String
+    queue      String
+    payload    String
+    exception  String
+    failedAt   DateTime @default(now()) @map("failed_at")
+
+    @@map("failed_jobs")
+}
+
+model PersonalAccessToken {
+    id            String    @id @default(uuid())
+    tokenableId   BigInt
+    tokenableType String
+    name          String
+    token         String    @unique
+    abilities     String?
+    lastUsedAt    DateTime? @map("last_used_at")
+    createdAt     DateTime  @default(now()) @map("created_at")
+    updatedAt     DateTime  @updatedAt @map("updated_at")
+
+    @@map("personal_access_tokens")
+}
+
+model Carteira {
+    id        String   @id @default(uuid())
+    descricao String   @db.VarChar(50)
+    ativo     Boolean
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    debitos    Movimento[] @relation("Debitos")
+    creditos   Movimento[] @relation("Creditos")
+    pagamentos Pagamento[]
+    receitas   Receita[]
+
+    @@map("carteiras")
+}
+
+model Categoria {
+    id        String   @id @default(uuid())
+    descricao String   @db.VarChar(50)
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("categorias")
+}
+
+enum TypeCredit {
+    CARTAO
+    EMPRESTIMO
+    FINANCIAMENTO
+    DESPESAFIXA
+}
+
+enum Bandeira {
+    VISA
+    MASTERCARD
+}
+
+enum Emissor {
+    ITAU
+    BRADESCO
+    BANCOBRASIL
+    SANTANDER
+    CAIXA
+    NUBANK
+    MERCADOPAGO
+    ATACADAO
+    NOVUCARD
+    OUZE
+    RIACHUELO
+    BRASILCARD
+    NEON
+}
+
+model Credit {
+    id           String      @id @default(uuid())
+    descricao    String      @db.VarChar(30)
+    type         TypeCredit  @default(CARTAO)
+    diavenc      String      @db.VarChar(2)
+    valorcredito Decimal?    @db.Decimal(9, 2)
+    valorparcela Decimal?    @db.Decimal(9, 2)
+    diafech      String?     @db.VarChar(2)
+    emissor      Emissor?
+    bandeira     Bandeira?
+    createdAt    DateTime    @default(now()) @map("created_at")
+    updatedAt    DateTime    @updatedAt @map("updated_at")
+    despesas     Despesa[]
+    pagamentos   Pagamento[]
+
+    @@map("credits")
+}
+
+model Despesa {
+    id          String   @id @default(uuid())
+    creditId    String?
+    categoriaId String
+    anofat      String   @db.VarChar(4)
+    mesfat      String   @db.VarChar(2)
+    descricao   String   @db.VarChar(50)
+    numparc     Int
+    qtdeparc    Int
+    lancamento  DateTime
+    valor       Decimal  @db.Decimal(9, 2)
+    fixa        Boolean
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    credit    Credit?     @relation(fields: [creditId], references: [id], onDelete: Restrict)
+    Pagamento Pagamento[]
+
+    @@index([creditId])
+    @@index([categoriaId])
+    @@map("despesas")
+}
+
+model Movimento {
+    id          String   @id @default(uuid())
+    cartdebito  String
+    cartcredito String
+    ocorrencia  DateTime
+    valor       Decimal  @db.Decimal(9, 2)
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    debito  Carteira @relation("Debitos", fields: [cartdebito], references: [id], onDelete: Restrict)
+    credito Carteira @relation("Creditos", fields: [cartcredito], references: [id], onDelete: Restrict)
+
+    @@map("movimentos")
+}
+
+model Pagamento {
+    id         String   @id @default(uuid())
+    creditId   String
+    carteiraId String
+    despesaId  String
+    anofat     String   @db.VarChar(4)
+    mesfat     String   @db.VarChar(2)
+    datapg     DateTime
+    valor      Decimal  @db.Decimal(9, 2)
+    createdAt  DateTime @default(now()) @map("created_at")
+    updatedAt  DateTime @updatedAt @map("updated_at")
+
+    credit   Credit   @relation(fields: [creditId], references: [id], onDelete: Restrict)
+    carteira Carteira @relation(fields: [carteiraId], references: [id], onDelete: Restrict)
+    despesa  Despesa  @relation(fields: [despesaId], references: [id], onDelete: Restrict)
+
+    @@index([creditId])
+    @@index([carteiraId])
+    @@index([despesaId])
+    @@map("pagamentos")
+}
+
+model Receita {
+    id         String   @id @default(uuid())
+    carteiraId String
+    descricao  String   @db.VarChar(50)
+    datareceb  DateTime
+    valor      Decimal  @db.Decimal(9, 2)
+    fixa       Boolean
+    createdAt  DateTime @default(now()) @map("created_at")
+    updatedAt  DateTime @updatedAt @map("updated_at")
+
+    carteira Carteira @relation(fields: [carteiraId], references: [id], onDelete: Restrict)
+
+    @@index([carteiraId])
+    @@map("receitas")
+}
+
+model Fornecedor {
+    id        String   @id @default(uuid())
+    descricao String   @db.VarChar(50)
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("fornecedores")
+}

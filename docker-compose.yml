@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+    personwallet-nestjs:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+            - PORT=${PORT}
+            - DATABASE_URL=postgresql://postgres:postgres@db:5432/personwallet
+        ports:
+            - '3000:3000'
+        depends_on:
+            - db
+        volumes:
+            - C:\\PersonWalletDevContainer/www:/var/www
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+
+    db:
+        image: postgres:13
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: personwallet
+        ports:
+            - '5434:5432'
+        volumes:
+            - C:\\PersonWalletDevContainer/data:/var/lib/postgresql/data

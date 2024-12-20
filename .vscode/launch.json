@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug NestJS",
+        "skipFiles": ["<node_internals>/**"],
+        "program": "${workspaceFolder}/src/main.ts",  // Caminho para o arquivo principal da sua aplicação NestJS
+        "preLaunchTask": "tsc: build - tsconfig.json",  // Tarefa para compilar TypeScript antes de iniciar a depuração
+        "outFiles": ["${workspaceFolder}/dist/**/*.js"],  // Arquivos de saída do TypeScript
+        "sourceMaps": true,  // Usar mapas de origem para permitir a depuração do TypeScript
+        "internalConsoleOptions": "openOnSessionStart"  // Abre a consola interna no início da sessão
+      }
+    ]
+  }
+  
