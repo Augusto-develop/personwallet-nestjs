@@ -41,4 +41,14 @@ export class DespesaController {
     remove(@Param('id') id: string) {
         return this.despesaService.remove(id);
     }
+
+    @Delete('/parcelas/:id')
+    removeParcelas(@Param('id') id: string) {
+        return this.despesaService.removeParcelas(id);
+    }
+
+    @Post('/parcelas')
+    async createParcelas(@Body('id') id: string) {
+        return await this.despesaService.createParcelas(id); // Chama o serviço para criar as parcelas
+    }
 }

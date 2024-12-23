@@ -1,6 +1,8 @@
 import {
     IsDate,
+    IsDecimal,
     IsEnum,
+    IsInt,
     IsNumber,
     IsOptional,
     IsString,
@@ -32,6 +34,7 @@ export class CreateCreditoDto {
     @IsOptional()
     diafech?: string;
 
+    @IsOptional()
     @IsEnum([
         'ITAU',
         'BRADESCO',
@@ -62,6 +65,7 @@ export class CreateCreditoDto {
         | 'BRASILCARD'
         | 'NEON';
 
+    @IsOptional()
     @IsEnum(['VISA', 'MASTERCARD'])
     bandeira?: 'VISA' | 'MASTERCARD';
 
@@ -74,4 +78,7 @@ export class CreateCreditoDto {
     @Min(0)
     @IsOptional()
     valorparcela?: number;
+
+    @IsInt()
+    qtdeparcela?: number;
 }

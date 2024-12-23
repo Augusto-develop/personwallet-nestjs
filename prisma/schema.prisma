@@ -116,11 +116,12 @@ model Credit {
     id           String      @id @default(uuid())
     descricao    String      @db.VarChar(30)
     type         TypeCredit  @default(CARTAO)
-    diavenc      String      @db.VarChar(2)
+    emissor      Emissor?
+    diavenc      String?     @db.VarChar(2)
     valorcredito Decimal?    @db.Decimal(9, 2)
     valorparcela Decimal?    @db.Decimal(9, 2)
+    qtdeparcela  Int?
     diafech      String?     @db.VarChar(2)
-    emissor      Emissor?
     bandeira     Bandeira?
     createdAt    DateTime    @default(now()) @map("created_at")
     updatedAt    DateTime    @updatedAt @map("updated_at")
@@ -131,25 +132,30 @@ model Credit {
 }
 
 model Despesa {
-    id          String   @id @default(uuid())
-    creditId    String?
-    categoriaId String
-    anofat      String   @db.VarChar(4)
-    mesfat      String   @db.VarChar(2)
-    descricao   String   @db.VarChar(50)
-    numparc     Int
-    qtdeparc    Int
-    lancamento  DateTime
-    valor       Decimal  @db.Decimal(9, 2)
-    fixa        Boolean
-    createdAt   DateTime @default(now()) @map("created_at")
-    updatedAt   DateTime @updatedAt @map("updated_at")
+    id           String   @id @default(uuid())
+    creditId     String?
+    categoriaId  String
+    anofat       String   @db.VarChar(4)
+    mesfat       String   @db.VarChar(2)
+    descricao    String   @db.VarChar(50)
+    numparc      Int
+    qtdeparc     Int
+    lancamento   DateTime
+    valor        Decimal  @db.Decimal(9, 2)
+    fixa         Boolean
+    generateparc Boolean  @default(false)
+    parentId     String?
+    createdAt    DateTime @default(now()) @map("created_at")
+    updatedAt    DateTime @updatedAt @map("updated_at")
 
+    parent    Despesa?    @relation("ParentChild", fields: [parentId], references: [id], onDelete: Restrict) // Relacionamento com a mesma tabela
+    children  Despesa[]   @relation("ParentChild") // Relacionamento inverso para os filhos
     credit    Credit?     @relation(fields: [creditId], references: [id], onDelete: Restrict)
     Pagamento Pagamento[]
 
     @@index([creditId])
     @@index([categoriaId])
+    @@index([parentId]) // Índice para o campo de referência à mesma tabela
     @@map("despesas")
 }
 

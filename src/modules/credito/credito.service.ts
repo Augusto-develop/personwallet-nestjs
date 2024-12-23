@@ -26,11 +26,16 @@ export class CreditoService {
         return credito;
     }
 
-    findAll() {
+    async findAll(filters?: { type?: string }) {
+        const where: any = {};
+
+        if (filters?.type) {
+            where.type = filters.type;
+        }
+
         return this.prisma.credit.findMany({
-            orderBy: {
-                diavenc: 'asc',
-            },
+            where,
+            orderBy: { diavenc: 'asc' },
         });
     }
 

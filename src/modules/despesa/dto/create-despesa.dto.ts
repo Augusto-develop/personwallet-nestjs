@@ -1,3 +1,4 @@
+import { Decimal } from '@prisma/client/runtime/library';
 import {
     IsBoolean,
     IsDateString,
@@ -47,8 +48,14 @@ export class CreateDespesaDto {
     lancamento: string;
 
     @IsDecimal()
-    valor: number;
+    valor: Decimal;
 
     @IsBoolean()
     fixa: boolean;
+
+    @IsBoolean()
+    generateparc: boolean;
+
+    @IsOptional()
+    parentId?: string;
 }
