@@ -113,27 +113,26 @@ enum Emissor {
 }
 
 model Credit {
-    id           String      @id @default(uuid())
-    descricao    String      @db.VarChar(30)
-    type         TypeCredit  @default(CARTAO)
+    id           String     @id @default(uuid())
+    descricao    String     @db.VarChar(30)
+    type         TypeCredit @default(CARTAO)
     emissor      Emissor?
-    diavenc      String?     @db.VarChar(2)
-    valorcredito Decimal?    @db.Decimal(9, 2)
-    valorparcela Decimal?    @db.Decimal(9, 2)
-    qtdeparcela  Int?
-    diafech      String?     @db.VarChar(2)
+    diavenc      String?    @db.VarChar(2)
+    valorcredito Decimal?   @db.Decimal(9, 2)
+    diafech      String?    @db.VarChar(2)
     bandeira     Bandeira?
-    createdAt    DateTime    @default(now()) @map("created_at")
-    updatedAt    DateTime    @updatedAt @map("updated_at")
-    despesas     Despesa[]
-    pagamentos   Pagamento[]
+    createdAt    DateTime   @default(now()) @map("created_at")
+    updatedAt    DateTime   @updatedAt @map("updated_at")
+
+    despesas   Despesa[]   @relation("CreditDespesas")
+    pagamentos Pagamento[]
 
     @@map("credits")
 }
 
 model Despesa {
     id           String   @id @default(uuid())
-    creditId     String?
+    creditId     String? // Chave estrangeira para Credit
     categoriaId  String
     anofat       String   @db.VarChar(4)
     mesfat       String   @db.VarChar(2)
@@ -150,11 +149,11 @@ model Despesa {
 
     parent    Despesa?    @relation("ParentChild", fields: [parentId], references: [id], onDelete: Restrict) // Relacionamento com a mesma tabela
     children  Despesa[]   @relation("ParentChild") // Relacionamento inverso para os filhos
-    credit    Credit?     @relation(fields: [creditId], references: [id], onDelete: Restrict)
-    Pagamento Pagamento[]
+    credits   Credit?     @relation("CreditDespesas", fields: [creditId], references: [id], onDelete: Restrict) // Relacionamento com Credit
+    Pagamento Pagamento[] // Relacionamento com Pagamento    
 
-    @@index([creditId])
-    @@index([categoriaId])
+    @@index([creditId]) // Índice para o campo de referência à Credit
+    @@index([categoriaId]) // Índice para o campo de categoria
     @@index([parentId]) // Índice para o campo de referência à mesma tabela
     @@map("despesas")
 }

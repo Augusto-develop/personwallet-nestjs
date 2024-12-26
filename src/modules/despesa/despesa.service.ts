@@ -8,6 +8,8 @@ import { v4 as uuid } from 'uuid';
 import { PrismaService } from 'src/database/PrismaService';
 import { CreateDespesaDto } from './dto/create-despesa.dto';
 import { UpdateDespesaDto } from './dto/update-despesa.dto';
+import { CreateCreditoDto } from '../credito/dto/create-credito.dto';
+import { createDateTime, convertDateForDateTime } from 'src/lib/util';
 
 @Injectable()
 export class DespesaService {
@@ -25,6 +27,7 @@ export class DespesaService {
         creditId?: string;
         mesfat?: string;
         anofat?: string;
+        type?: string;
     }) {
         const where: any = {};
 
@@ -38,6 +41,11 @@ export class DespesaService {
 
         if (filters?.anofat) {
             where.anofat = filters.anofat;
+        }
+
+        if (filters?.type) {
+            where.credits = {type: filters.type };
+            where.creditId = {not: null};            
         }
 
         return this.prisma.despesa.findMany({ where });
@@ -137,7 +145,7 @@ export class DespesaService {
                 descricao: despesa.descricao,
                 numparc: i,
                 qtdeparc: despesa.qtdeparc,
-                lancamento: new Date(despesa.lancamento).toISOString(),
+                lancamento: convertDateForDateTime(despesa.lancamento),
                 valor: despesa.valor,
                 fixa: despesa.fixa,
                 generateparc: false,
@@ -160,5 +168,60 @@ export class DespesaService {
         });
 
         return updatedDespesa;
+    }
+
+    async createDespesasFixas(mesfat: string, anofat: string) {
+        // Buscar os créditos com o tipo informado
+        const credits: CreateCreditoDto[] = await this.prisma.credit.findMany({
+            where: {
+                type: "DESPESAFIXA",
+            },
+        });
+    
+        if (!credits || credits.length === 0) {
+            throw new NotFoundException(`Nenhuma despesa fixa encontrada.`);
+        }
+    
+        const despesasCriadas: CreateDespesaDto[]  = []; // Para armazenar as despesas criadas
+    
+        // Para cada crédito encontrado
+        for (const credit of credits) {
+            // Verificar se já existe alguma despesa com esse crédito
+            const despesasExistentes = await this.prisma.despesa.findMany({
+                where: {
+                    creditId: credit.id,
+                    anofat: anofat,
+                    mesfat: mesfat
+                },
+            });
+    
+            if (despesasExistentes.length > 0) {
+                console.log(`Despesas já existem para o crédito ${credit.id}. Pulando criação.`);
+                continue; // Pula se já houver despesas
+            }
+                
+            despesasCriadas.push({               
+                creditId: credit.id,
+                categoriaId: '62f40b32-5528-43a3-9d2d-6af7e20bde18',
+                anofat: anofat,
+                mesfat: mesfat,
+                descricao: credit.descricao,
+                numparc: 1,
+                qtdeparc: 1,
+                lancamento: createDateTime(credit.diavenc, mesfat, anofat),
+                valor: credit.valorcredito,
+                fixa: false,
+                generateparc: false,
+                parentId: null,
+            });             
+        }
+        
+        const registrosCriados = await Promise.all(
+            despesasCriadas.map((despesa: CreateDespesaDto) =>
+              this.prisma.despesa.create({ data: despesa })
+            )
+          );    
+          
+          return registrosCriados;
     }
 }

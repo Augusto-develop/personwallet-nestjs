@@ -9,15 +9,15 @@ export class CreditoService {
     constructor(private prisma: PrismaService) {}
 
     async create(data: CreateCreditoDto) {
-        const creditoExists = await this.prisma.credit.findFirst({
-            where: {
-                descricao: data.descricao,
-            },
-        });
+        // const creditoExists = await this.prisma.credit.findFirst({
+        //     where: {
+        //         descricao: data.descricao,
+        //     },
+        // });
 
-        if (creditoExists) {
-            throw new Error('Credito already exists');
-        }
+        // if (creditoExists) {
+        //     throw new Error('Credito already exists');
+        // }
 
         const credito = await this.prisma.credit.create({
             data,

@@ -1,3 +1,4 @@
+import { Decimal } from '@prisma/client/runtime/library';
 import {
     IsDate,
     IsDecimal,
@@ -69,16 +70,7 @@ export class CreateCreditoDto {
     @IsEnum(['VISA', 'MASTERCARD'])
     bandeira?: 'VISA' | 'MASTERCARD';
 
-    @IsNumber()
-    @Min(0)
+    @IsDecimal()    
     @IsOptional()
-    valorcredito?: number;
-
-    @IsNumber()
-    @Min(0)
-    @IsOptional()
-    valorparcela?: number;
-
-    @IsInt()
-    qtdeparcela?: number;
+    valorcredito: Decimal;
 }
