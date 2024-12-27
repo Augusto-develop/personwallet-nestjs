@@ -60,35 +60,12 @@ model PersonalAccessToken {
     @@map("personal_access_tokens")
 }
 
-model Carteira {
-    id        String   @id @default(uuid())
-    descricao String   @db.VarChar(50)
-    ativo     Boolean
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-
-    debitos    Movimento[] @relation("Debitos")
-    creditos   Movimento[] @relation("Creditos")
-    pagamentos Pagamento[]
-    receitas   Receita[]
-
-    @@map("carteiras")
-}
-
-model Categoria {
-    id        String   @id @default(uuid())
-    descricao String   @db.VarChar(50)
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-
-    @@map("categorias")
-}
-
 enum TypeCredit {
     CARTAO
     EMPRESTIMO
     FINANCIAMENTO
     DESPESAFIXA
+    AVISTA
 }
 
 enum Bandeira {
@@ -110,6 +87,33 @@ enum Emissor {
     RIACHUELO
     BRASILCARD
     NEON
+    C6BANK
+    MIDWAY
+}
+
+model Carteira {
+    id        String   @id @default(uuid())
+    descricao String   @db.VarChar(50)
+    emissor   Emissor
+    ativo     Boolean
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    debitos    Movimento[] @relation("Debitos")
+    creditos   Movimento[] @relation("Creditos")
+    pagamentos Pagamento[]
+    receitas   Receita[]
+
+    @@map("carteiras")
+}
+
+model Categoria {
+    id        String   @id @default(uuid())
+    descricao String   @db.VarChar(50)
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("categorias")
 }
 
 model Credit {

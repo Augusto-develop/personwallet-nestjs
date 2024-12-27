@@ -10,11 +10,12 @@ import { CreateDespesaDto } from './dto/create-despesa.dto';
 import { UpdateDespesaDto } from './dto/update-despesa.dto';
 import { CreateCreditoDto } from '../credito/dto/create-credito.dto';
 import { createDateTime, convertDateForDateTime } from 'src/lib/util';
+import { Prisma, TypeCredit } from '@prisma/client';
 
 @Injectable()
 export class DespesaService {
     constructor(private prisma: PrismaService) {}
-
+    
     async create(data: CreateDespesaDto) {
         const despesa = await this.prisma.despesa.create({
             data,
@@ -174,7 +175,7 @@ export class DespesaService {
         // Buscar os créditos com o tipo informado
         const credits: CreateCreditoDto[] = await this.prisma.credit.findMany({
             where: {
-                type: "DESPESAFIXA",
+                type: TypeCredit.DESPESAFIXA,
             },
         });
     

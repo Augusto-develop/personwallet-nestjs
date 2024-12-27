@@ -13,6 +13,7 @@ import {
     Min,
     MinLength,
 } from 'class-validator';
+import { Bandeira, Emissor, TypeCredit } from '@prisma/client';
 
 export class CreateCreditoDto {
     @IsUUID()
@@ -23,54 +24,29 @@ export class CreateCreditoDto {
     @Length(3, 30)
     descricao: string;
 
-    @IsEnum(['CARTAO', 'EMPRESTIMO', 'FINANCIAMENTO', 'DESPESAFIXA'])
-    type: 'CARTAO' | 'EMPRESTIMO' | 'FINANCIAMENTO' | 'DESPESAFIXA';
+    @IsOptional()
+    @IsEnum(TypeCredit)
+    type?: TypeCredit;
 
     @IsString()
     @Length(2, 2)
-    diavenc: string;
+    @IsOptional()
+    diavenc?: string;
 
     @IsString()
     @Length(2, 2)
     @IsOptional()
     diafech?: string;
+   
+    @IsOptional()
+    @IsEnum(Emissor)
+    emissor?: Emissor;
 
     @IsOptional()
-    @IsEnum([
-        'ITAU',
-        'BRADESCO',
-        'BANCOBRASIL',
-        'SANTANDER',
-        'CAIXA',
-        'NUBANK',
-        'MERCADOPAGO',
-        'ATACADAO',
-        'NOVUCARD',
-        'OUZE',
-        'RIACHUELO',
-        'BRASILCARD',
-        'NEON',
-    ])
-    emissor?:
-        | 'ITAU'
-        | 'BRADESCO'
-        | 'BANCOBRASIL'
-        | 'SANTANDER'
-        | 'CAIXA'
-        | 'NUBANK'
-        | 'MERCADOPAGO'
-        | 'ATACADAO'
-        | 'NOVUCARD'
-        | 'OUZE'
-        | 'RIACHUELO'
-        | 'BRASILCARD'
-        | 'NEON';
-
-    @IsOptional()
-    @IsEnum(['VISA', 'MASTERCARD'])
-    bandeira?: 'VISA' | 'MASTERCARD';
+    @IsEnum(Bandeira)
+    bandeira?: Bandeira;
 
     @IsDecimal()    
     @IsOptional()
-    valorcredito: Decimal;
+    valorcredito?: Decimal;
 }
