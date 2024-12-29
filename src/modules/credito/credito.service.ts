@@ -39,6 +39,96 @@ export class CreditoService {
         });
     }
 
+    // async getCreditWithInvoices(filters: {mesfat: string, anofat: string}): Promise<any> {
+    //     const credits = await this.prisma.credit.findMany({
+    //       include: {
+    //         // Incluir as despesas associadas a cada crédito
+    //         despesas: {
+    //           where: {
+    //             anofat: filters.anofat,
+    //             mesfat: filters.mesfat,
+    //           },
+    //           _sum: {
+    //             valor: true,  // Somar o valor das despesas
+    //           },
+    //         },
+    //       },
+    //     });
+    
+    //     // Mapeia os resultados para combinar os valores das despesas com os créditos
+    //     return credits.map(credit => ({
+    //       ...credit,
+    //       totalDespesas: credit.despesas.reduce((acc, despesa) => acc + (despesa._sum.valor || 0), 0), // Soma os valores das despesas
+    //     }));
+    //   }
+
+      async getCreditWithInvoices(filters: {mesfat: string, anofat: string}): Promise<any> {
+        const credits = await this.prisma.credit.findMany({
+            where: {
+                type: {
+                    not: 'AVISTA'
+                },
+            },
+            select: {
+            id: true,
+            descricao: true,
+            type: true,
+            emissor: true,
+            diavenc: true,
+            valorcredito: true,
+            diafech: true,
+            bandeira: true,
+            categoriaId: true,
+            createdAt: true,
+            updatedAt: true,
+            // Inclui as despesas com o filtro
+            despesas: {
+              where: {
+                anofat: filters.anofat,
+                mesfat: filters.mesfat,
+              },
+              select: {
+                valor: true, // Seleciona apenas o valor da despesa
+              },
+            },
+          },
+        });
+    
+        // Mapeia os resultados para somar os valores das despesas por credit
+        return credits.map(credit => {
+            const totalFatura = credit.despesas.reduce((acc, despesa) => acc + despesa.valor.toNumber(), 0);
+            return {
+                ...credit,
+                totalFatura,
+            };
+        });
+      }
+
+    // async getCreditWithInvoices(filters: {mesfat: string, anofat: string}) {
+    //     return await this.prisma.credit.findMany({
+    //       include: {
+    //         despesas: {
+    //           where: {
+    //             anofat: filters.anofat,
+    //             mesfat: filters.mesfat,
+    //           },
+    //           select: {
+    //             valor: true,
+    //           },
+    //         },
+    //       },
+    //     }).then((credits) =>
+    //       credits.map((credit) => {
+    //         const totalDespesas = credit.despesas.reduce((sum, despesa) => sum + Number(despesa.valor), 0);
+    //         return {
+    //           ...credit,
+    //           totalDespesas,
+    //         };
+    //       }),
+    //     );
+    // }
+    
+
     findOne(id: string) {
         return `This action returns a #${id} credito`;
     }

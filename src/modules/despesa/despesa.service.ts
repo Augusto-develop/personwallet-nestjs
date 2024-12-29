@@ -203,7 +203,7 @@ export class DespesaService {
                 
             despesasCriadas.push({               
                 creditId: credit.id,
-                categoriaId: '62f40b32-5528-43a3-9d2d-6af7e20bde18',
+                categoriaId: credit.categoriaId,
                 anofat: anofat,
                 mesfat: mesfat,
                 descricao: credit.descricao,

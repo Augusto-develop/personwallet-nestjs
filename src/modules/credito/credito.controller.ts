@@ -29,6 +29,14 @@ export class CreditoController {
         return this.creditoService.findAll({ type });
     }
 
+    @Get('/faturas')
+    async findInvoice(        
+        @Query('mesfat') mesfat?: string,
+        @Query('anofat') anofat?: string       
+    ) {
+        return this.creditoService.getCreditWithInvoices({mesfat, anofat});
+    }
+
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.creditoService.findOne(id);

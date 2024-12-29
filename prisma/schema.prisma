@@ -89,6 +89,7 @@ enum Emissor {
     NEON
     C6BANK
     MIDWAY
+    BANCOPAN
 }
 
 model Carteira {
@@ -125,12 +126,14 @@ model Credit {
     valorcredito Decimal?   @db.Decimal(9, 2)
     diafech      String?    @db.VarChar(2)
     bandeira     Bandeira?
+    categoriaId  String?
     createdAt    DateTime   @default(now()) @map("created_at")
     updatedAt    DateTime   @updatedAt @map("updated_at")
 
     despesas   Despesa[]   @relation("CreditDespesas")
     pagamentos Pagamento[]
 
+    @@index([categoriaId])
     @@map("credits")
 }
 

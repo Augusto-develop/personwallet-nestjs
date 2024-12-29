@@ -49,4 +49,8 @@ export class CreateCreditoDto {
     @IsDecimal()    
     @IsOptional()
     valorcredito?: Decimal;
+
+    @IsUUID()
+    @IsOptional()
+    categoriaId?: string;
 }
