@@ -69,36 +69,39 @@ export class CreditoService {
                     not: 'AVISTA'
                 },
             },
+            orderBy: { diavenc: 'asc' },
             select: {
-            id: true,
-            descricao: true,
-            type: true,
-            emissor: true,
-            diavenc: true,
-            valorcredito: true,
-            diafech: true,
-            bandeira: true,
-            categoriaId: true,
-            createdAt: true,
-            updatedAt: true,
-            // Inclui as despesas com o filtro
-            despesas: {
-              where: {
-                anofat: filters.anofat,
-                mesfat: filters.mesfat,
-              },
-              select: {
-                valor: true, // Seleciona apenas o valor da despesa
-              },
+                id: true,
+                descricao: true,
+                type: true,
+                emissor: true,
+                diavenc: true,
+                valorcredito: true,
+                diafech: true,
+                bandeira: true,
+                categoriaId: true,
+                createdAt: true,
+                updatedAt: true,
+                // Inclui as despesas com o filtro
+                despesas: {
+                    where: {
+                        anofat: filters.anofat,
+                        mesfat: filters.mesfat,
+                    },
+                    select: {
+                        valor: true, // Seleciona apenas o valor da despesa
+                    },
+                },            
             },
-          },
         });
     
         // Mapeia os resultados para somar os valores das despesas por credit
         return credits.map(credit => {
             const totalFatura = credit.despesas.reduce((acc, despesa) => acc + despesa.valor.toNumber(), 0);
+            // Remove o campo despesas do retorno
+            const { despesas, ...creditWithoutDespesas } = credit;
             return {
-                ...credit,
+                ...creditWithoutDespesas,
                 totalFatura,
             };
         });

@@ -9,6 +9,7 @@ import { CarteiraModule } from './modules/carteira/carteira.module';
 import { RetornoModule } from './modules/retorno/retorno.module';
 import { CreditoModule } from './modules/credito/credito.module';
 import { CategoriaModule } from './modules/categoria/categoria.module';
+import { ReceitaModule } from './modules/receita/receita.module';
 
 @Module({
   imports: [
@@ -17,7 +18,10 @@ import { CategoriaModule } from './modules/categoria/categoria.module';
     UsuarioModule,
     AuthModule,    
     CarteiraModule, 
-    RetornoModule, CreditoModule, CategoriaModule
+    RetornoModule, 
+    CreditoModule, 
+    CategoriaModule, 
+    ReceitaModule
   ],
   controllers: [AppController],
   providers: [AppService],
