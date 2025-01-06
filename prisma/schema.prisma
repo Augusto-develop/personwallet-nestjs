@@ -100,10 +100,9 @@ model Carteira {
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
 
-    debitos    Movimento[] @relation("Debitos")
-    creditos   Movimento[] @relation("Creditos")
-    pagamentos Pagamento[]
-    receitas   Receita[]
+    debitos  Movimento[] @relation("Debitos")
+    creditos Movimento[] @relation("Creditos")
+    receitas Receita[]
 
     @@map("carteiras")
 }
@@ -131,7 +130,7 @@ model Credit {
     updatedAt    DateTime   @updatedAt @map("updated_at")
 
     despesas   Despesa[]   @relation("CreditDespesas")
-    pagamentos Pagamento[]
+    movimentos Movimento[] @relation("CreditMovimentos")
 
     @@index([categoriaId])
     @@map("credits")
@@ -148,16 +147,14 @@ model Despesa {
     qtdeparc     Int
     lancamento   DateTime
     valor        Decimal  @db.Decimal(9, 2)
-    fixa         Boolean
     generateparc Boolean  @default(false)
     parentId     String?
     createdAt    DateTime @default(now()) @map("created_at")
     updatedAt    DateTime @updatedAt @map("updated_at")
 
-    parent    Despesa?    @relation("ParentChild", fields: [parentId], references: [id], onDelete: Restrict) // Relacionamento com a mesma tabela
-    children  Despesa[]   @relation("ParentChild") // Relacionamento inverso para os filhos
-    credits   Credit?     @relation("CreditDespesas", fields: [creditId], references: [id], onDelete: Restrict) // Relacionamento com Credit
-    Pagamento Pagamento[] // Relacionamento com Pagamento    
+    parent   Despesa?  @relation("ParentChild", fields: [parentId], references: [id], onDelete: Restrict) // Relacionamento com a mesma tabela
+    children Despesa[] @relation("ParentChild") // Relacionamento inverso para os filhos
+    credits  Credit?   @relation("CreditDespesas", fields: [creditId], references: [id], onDelete: Restrict) // Relacionamento com Credit   
 
     @@index([creditId]) // Índice para o campo de referência à Credit
     @@index([categoriaId]) // Índice para o campo de categoria
@@ -168,38 +165,21 @@ model Despesa {
 model Movimento {
     id          String   @id @default(uuid())
     cartdebito  String
-    cartcredito String
+    cartcredito String?
     ocorrencia  DateTime
     valor       Decimal  @db.Decimal(9, 2)
+    creditId    String?
+    anofat      String?  @db.VarChar(4)
+    mesfat      String?  @db.VarChar(2)
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
 
-    debito  Carteira @relation("Debitos", fields: [cartdebito], references: [id], onDelete: Restrict)
-    credito Carteira @relation("Creditos", fields: [cartcredito], references: [id], onDelete: Restrict)
-
-    @@map("movimentos")
-}
-
-model Pagamento {
-    id         String   @id @default(uuid())
-    creditId   String
-    carteiraId String
-    despesaId  String
-    anofat     String   @db.VarChar(4)
-    mesfat     String   @db.VarChar(2)
-    datapg     DateTime
-    valor      Decimal  @db.Decimal(9, 2)
-    createdAt  DateTime @default(now()) @map("created_at")
-    updatedAt  DateTime @updatedAt @map("updated_at")
-
-    credit   Credit   @relation(fields: [creditId], references: [id], onDelete: Restrict)
-    carteira Carteira @relation(fields: [carteiraId], references: [id], onDelete: Restrict)
-    despesa  Despesa  @relation(fields: [despesaId], references: [id], onDelete: Restrict)
+    debito  Carteira  @relation("Debitos", fields: [cartdebito], references: [id], onDelete: Restrict)
+    credito Carteira? @relation("Creditos", fields: [cartcredito], references: [id], onDelete: Restrict)
+    credits Credit?   @relation("CreditMovimentos", fields: [creditId], references: [id], onDelete: Restrict)
 
     @@index([creditId])
-    @@index([carteiraId])
-    @@index([despesaId])
-    @@map("pagamentos")
+    @@map("movimentos")
 }
 
 model Receita {
@@ -208,7 +188,6 @@ model Receita {
     descricao  String   @db.VarChar(50)
     datareceb  DateTime
     valor      Decimal  @db.Decimal(9, 2)
-    fixa       Boolean
     createdAt  DateTime @default(now()) @map("created_at")
     updatedAt  DateTime @updatedAt @map("updated_at")
 

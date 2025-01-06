@@ -14,10 +14,10 @@ import {
 export class CreateReceitaDto {
     @IsUUID()
     @IsOptional()
-    id?: string;   
+    id?: string;
 
     @IsUUID()
-    carteiraId: string;   
+    carteiraId: string;
 
     @IsString()
     @MinLength(3)
@@ -25,11 +25,8 @@ export class CreateReceitaDto {
     descricao: string;
 
     @IsDateString()
-    datareceb: string;   
+    datareceb: string;
 
     @IsDecimal()
     valor: Decimal;
-
-    @IsBoolean()
-    fixa: boolean;
-}
+} 

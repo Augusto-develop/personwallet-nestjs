@@ -10,18 +10,20 @@ import { RetornoModule } from './modules/retorno/retorno.module';
 import { CreditoModule } from './modules/credito/credito.module';
 import { CategoriaModule } from './modules/categoria/categoria.module';
 import { ReceitaModule } from './modules/receita/receita.module';
+import { MovimentoModule } from './modules/movimento/movimento.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DespesaModule,
     UsuarioModule,
-    AuthModule,    
-    CarteiraModule, 
-    RetornoModule, 
-    CreditoModule, 
-    CategoriaModule, 
-    ReceitaModule
+    AuthModule,
+    CarteiraModule,
+    RetornoModule,
+    CreditoModule,
+    CategoriaModule,
+    ReceitaModule,
+    MovimentoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

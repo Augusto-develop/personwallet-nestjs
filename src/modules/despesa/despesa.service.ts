@@ -14,8 +14,8 @@ import { Prisma, TypeCredit } from '@prisma/client';
 
 @Injectable()
 export class DespesaService {
-    constructor(private prisma: PrismaService) {}
-    
+    constructor(private prisma: PrismaService) { }
+
     async create(data: CreateDespesaDto) {
         const despesa = await this.prisma.despesa.create({
             data,
@@ -45,11 +45,11 @@ export class DespesaService {
         }
 
         if (filters?.type) {
-            where.credits = {type: filters.type };
-            where.creditId = {not: null};            
+            where.credits = { type: filters.type };
+            where.creditId = { not: null };
         }
 
-        return this.prisma.despesa.findMany({ where });
+        return this.prisma.despesa.findMany({ where, orderBy: { lancamento: 'asc' } });
     }
 
     async update(id: string, data: UpdateDespesaDto) {
@@ -148,7 +148,6 @@ export class DespesaService {
                 qtdeparc: despesa.qtdeparc,
                 lancamento: convertDateForDateTime(despesa.lancamento),
                 valor: despesa.valor,
-                fixa: despesa.fixa,
                 generateparc: false,
                 parentId: id,
             });
@@ -178,13 +177,13 @@ export class DespesaService {
                 type: TypeCredit.DESPESAFIXA,
             },
         });
-    
+
         if (!credits || credits.length === 0) {
             throw new NotFoundException(`Nenhuma despesa fixa encontrada.`);
         }
-    
-        const despesasCriadas: CreateDespesaDto[]  = []; // Para armazenar as despesas criadas
-    
+
+        const despesasCriadas: CreateDespesaDto[] = []; // Para armazenar as despesas criadas
+
         // Para cada crédito encontrado
         for (const credit of credits) {
             // Verificar se já existe alguma despesa com esse crédito
@@ -195,13 +194,13 @@ export class DespesaService {
                     mesfat: mesfat
                 },
             });
-    
+
             if (despesasExistentes.length > 0) {
                 console.log(`Despesas já existem para o crédito ${credit.id}. Pulando criação.`);
                 continue; // Pula se já houver despesas
             }
-                
-            despesasCriadas.push({               
+
+            despesasCriadas.push({
                 creditId: credit.id,
                 categoriaId: credit.categoriaId,
                 anofat: anofat,
@@ -211,18 +210,90 @@ export class DespesaService {
                 qtdeparc: 1,
                 lancamento: createDateTime(credit.diavenc, mesfat, anofat),
                 valor: credit.valorcredito,
-                fixa: false,
                 generateparc: false,
                 parentId: null,
-            });             
+            });
         }
-        
+
         const registrosCriados = await Promise.all(
             despesasCriadas.map((despesa: CreateDespesaDto) =>
-              this.prisma.despesa.create({ data: despesa })
+                this.prisma.despesa.create({ data: despesa })
             )
-          );    
-          
-          return registrosCriados;
+        );
+
+        return registrosCriados;
     }
+
+    async getExpenseSums(filters?: {
+        creditId?: string;
+        mesfat?: string;
+        anofat?: string;
+    }) {
+        // Convertendo mesfat e anofat para calcular meses anteriores e posteriores
+        const currentDate = new Date(`${filters.anofat}-${filters.mesfat}-01`);
+        const previousDate = new Date(currentDate);
+        previousDate.setMonth(currentDate.getMonth() - 1);
+        const nextDate = new Date(currentDate);
+        nextDate.setMonth(currentDate.getMonth() + 1);
+
+        const [previousYear, previousMonth] = [
+            previousDate.getFullYear(),
+            String(previousDate.getMonth() + 1).padStart(2, '0'),
+        ];
+        const [nextYear, nextMonth] = [
+            nextDate.getFullYear(),
+            String(nextDate.getMonth() + 1).padStart(2, '0'),
+        ];
+
+        // Consultando as despesas de todos os períodos de interesse (anterior, atual, posterior e futuro)
+        const [previous, current, next, future] = await Promise.all([
+            this.prisma.despesa.aggregate({
+                _sum: { valor: true },
+                where: {
+                    creditId: filters.creditId,
+                    anofat: previousYear.toString(),
+                    mesfat: previousMonth,
+                },
+            }),
+            this.prisma.despesa.aggregate({
+                _sum: { valor: true },
+                where: {
+                    creditId: filters.creditId,
+                    anofat: filters.anofat,
+                    mesfat: filters.mesfat,
+                },
+            }),
+            this.prisma.despesa.aggregate({
+                _sum: { valor: true },
+                where: {
+                    creditId: filters.creditId,
+                    anofat: nextYear.toString(),
+                    mesfat: nextMonth,
+                },
+            }),
+            this.prisma.despesa.aggregate({
+                _sum: { valor: true },
+                where: {
+                    creditId: filters.creditId,
+                    OR: [
+                        {
+                            anofat: { gt: filters.anofat },
+                        },
+                        {
+                            anofat: filters.anofat,
+                            mesfat: { gt: filters.mesfat },
+                        },
+                    ],
+                },
+            }),
+        ]);
+
+        return {
+            current: current._sum.valor || 0,
+            previous: previous._sum.valor || 0,
+            next: next._sum.valor || 0,
+            future: future._sum.valor || 0,
+        };
+    };
+
 }

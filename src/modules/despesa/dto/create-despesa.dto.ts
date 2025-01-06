@@ -51,9 +51,6 @@ export class CreateDespesaDto {
     valor: Decimal;
 
     @IsBoolean()
-    fixa: boolean;
-
-    @IsBoolean()
     generateparc: boolean;
 
     @IsOptional()

@@ -18,7 +18,7 @@ import { UpdateDespesaDto } from './dto/update-despesa.dto';
 @UseGuards(AuthGuard)
 @Controller('despesa')
 export class DespesaController {
-    constructor(private readonly despesaService: DespesaService) {}
+    constructor(private readonly despesaService: DespesaService) { }
 
     @Post()
     create(@Body() data: CreateDespesaDto) {
@@ -33,6 +33,15 @@ export class DespesaController {
         @Query('type') type?: string,
     ) {
         return this.despesaService.findAll({ creditId, mesfat, anofat, type });
+    }
+
+    @Get('/invoice/sums')
+    async expenseSums(
+        @Query('creditId') creditId?: string,
+        @Query('mesfat') mesfat?: string,
+        @Query('anofat') anofat?: string,
+    ) {
+        return this.despesaService.getExpenseSums({ creditId, mesfat, anofat });
     }
 
     @Patch(':id')
@@ -59,7 +68,7 @@ export class DespesaController {
     }
 
     @Post('/fixas')
-    async createDespesasFixas(        
+    async createDespesasFixas(
         @Body('mesfat') mesfat: string,
         @Body('anofat') anofat: string,
     ) {
