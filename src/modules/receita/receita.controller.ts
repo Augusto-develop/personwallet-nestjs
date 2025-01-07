@@ -18,7 +18,7 @@ import { UpdateReceitaDto } from './dto/update-receita.dto';
 @UseGuards(AuthGuard)
 @Controller('receita')
 export class ReceitaController {
-    constructor(private readonly receitaService: ReceitaService) {}
+    constructor(private readonly receitaService: ReceitaService) { }
 
     @Post()
     create(@Body() data: CreateReceitaDto) {
@@ -26,11 +26,11 @@ export class ReceitaController {
     }
 
     @Get()
-    async findAll(        
+    async findAll(
         @Query('mes') mes?: string,
-        @Query('ano') ano?: string,       
+        @Query('ano') ano?: string,
     ) {
-        return this.receitaService.findAll({ mes, ano});
+        return this.receitaService.findAll({ mes, ano });
     }
 
     @Patch(':id')
@@ -44,5 +44,5 @@ export class ReceitaController {
     @Delete('/:id')
     remove(@Param('id') id: string) {
         return this.receitaService.remove(id);
-    }    
+    }
 }

@@ -5,11 +5,12 @@ import { PrismaService } from 'src/database/PrismaService';
 import { CreateReceitaDto } from './dto/create-receita.dto';
 import { UpdateReceitaDto } from './dto/update-receita.dto';
 import dayjs from 'dayjs';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class ReceitaService {
-    constructor(private prisma: PrismaService) {}
-    
+    constructor(private prisma: PrismaService) { }
+
     async create(data: CreateReceitaDto) {
         const receita = await this.prisma.receita.create({
             data,
@@ -18,30 +19,30 @@ export class ReceitaService {
         return receita;
     }
 
-    async findAll(filters?: {       
+    async findAll(filters?: {
         mes?: string;
-        ano?: string;        
+        ano?: string;
     }) {
         const where: any = {};
-        
+
         if (filters?.mes && filters?.ano) {
             const { mes, ano } = filters;
-    
+
             // Cria o primeiro e o último dia do mês
             const primeiroDia = dayjs(`${ano}-${mes}-01`).startOf('month').toDate();
             const ultimoDia = dayjs(`${ano}-${mes}-01`).endOf('month').toDate();
-    
+
             // Define o filtro BETWEEN
             where.datarecebe = {
                 gte: primeiroDia, // Maior ou igual ao primeiro dia do mês
                 lte: ultimoDia    // Menor ou igual ao último dia do mês
             };
         }
-    
+
         return this.prisma.receita.findMany({
-            where, 
-            orderBy: { 
-                datareceb: 'asc' 
+            where,
+            orderBy: {
+                datareceb: 'asc'
             }
         });
     }

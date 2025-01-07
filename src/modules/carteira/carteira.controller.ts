@@ -7,7 +7,7 @@ import { AuthGuard } from '../auth/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('carteira')
 export class CarteiraController {
-  constructor(private readonly carteiraService: CarteiraService) {}
+  constructor(private readonly carteiraService: CarteiraService) { }
 
   @Post()
   create(@Body() data: CreateCarteiraDto) {
@@ -19,13 +19,18 @@ export class CarteiraController {
     return this.carteiraService.findAll();
   }
 
+  @Get('/saldo')
+  calcSaldo() {
+    return this.carteiraService.calcularSaldoPorCarteira();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.carteiraService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCarteiraDto: UpdateCarteiraDto) {    
+  update(@Param('id') id: string, @Body() updateCarteiraDto: UpdateCarteiraDto) {
     return this.carteiraService.update(id, updateCarteiraDto);
   }
 
