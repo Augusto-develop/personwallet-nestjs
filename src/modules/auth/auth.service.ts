@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compareSync as bcryptCompareSync } from 'bcrypt';
+import { compareSync as bcryptCompareSync } from 'bcryptjs';
 import { UsuarioService } from 'src/modules/usuario/usuario.service';
 import { AuthResponseDto } from './auth.dto';
 import { ConfigService } from '@nestjs/config';
@@ -17,8 +17,8 @@ export class AuthService {
     }
 
     async signIn(email: string, password: string): Promise<AuthResponseDto> {
-        const foundUsuario = await this.usuarioService.findByUsuarioEmail(email);        
-        
+        const foundUsuario = await this.usuarioService.findByUsuarioEmail(email);
+
         if (!foundUsuario) {
             throw new Error('Usuario not exists');
         }
@@ -29,8 +29,15 @@ export class AuthService {
 
         const payload = { sub: foundUsuario.id, username: foundUsuario.name };
 
+        console.log(payload);
+
         const token = this.jwtService.sign(payload);
 
-        return { token, expiresIn: this.jwtExpirationTimeInSeconds };
+        return {
+            token,
+            expiresIn: this.jwtExpirationTimeInSeconds,
+            id: foundUsuario.id,
+            name: foundUsuario.name,
+        };
     }
 }

@@ -3,24 +3,26 @@ import { CreateCreditoDto } from './dto/create-credito.dto';
 import { UpdateCreditoDto } from './dto/update-credito.dto';
 import { PrismaService } from '../../database/PrismaService';
 import { OmitType } from '@nestjs/mapped-types';
+import { TypeCredit } from '@prisma/client';
 
 @Injectable()
 export class CreditoService {
     constructor(private prisma: PrismaService) { }
 
     async create(data: CreateCreditoDto) {
-        // const creditoExists = await this.prisma.credit.findFirst({
-        //     where: {
-        //         descricao: data.descricao,
-        //     },
-        // });
-
-        // if (creditoExists) {
-        //     throw new Error('Credito already exists');
-        // }
 
         const credito = await this.prisma.credit.create({
-            data,
+            data: {
+                descricao: data.descricao,
+                type: data.type || 'CARTAO',
+                categoria: data.categoriaId ? { connect: { id: data.categoriaId } } : null,
+                valorcredito: data.valorcredito || null,
+                diavenc: data.diavenc,
+                diafech: data.diafech,
+                bandeira: data.bandeira,
+                // userId: "55421222"
+                user: { connect: { id: "55421222" } },
+            }
         });
 
         return credito;
@@ -39,13 +41,64 @@ export class CreditoService {
         });
     }
 
-    async getCreditWithInvoices(filters: { mesfat: string, anofat: string }): Promise<any> {
+    async getCreditCardLimits() {
         const credits = await this.prisma.credit.findMany({
             where: {
-                type: {
-                    not: 'AVISTA'
-                },
+                type: TypeCredit.CARTAO,
             },
+            orderBy: { diavenc: 'asc' }
+        });
+
+        const creditLimits = await Promise.all(
+            credits.map(async (credit) => {
+                // Converte valorcredito para número, trata null como 0
+                const valorCredito = credit.valorcredito ? credit.valorcredito.toNumber() : 0;
+
+                // Soma das despesas para este crédito
+                const totalDespesas = await this.prisma.despesa.aggregate({
+                    where: {
+                        creditId: credit.id,
+                    },
+                    _sum: {
+                        valor: true,
+                    },
+                });
+
+                // Soma dos movimentos para este crédito
+                const totalMovimentos = await this.prisma.movimento.aggregate({
+                    where: {
+                        creditId: credit.id,
+                    },
+                    _sum: {
+                        valor: true,
+                    },
+                });
+
+                // Trata undefined ou null como 0
+                const despesasSum = totalDespesas._sum.valor ? totalDespesas._sum.valor.toNumber() : 0;
+                const movimentosSum = totalMovimentos._sum.valor ? totalMovimentos._sum.valor.toNumber() : 0;
+
+                // Calcula o limite do cartão
+                const limite = (valorCredito + movimentosSum - despesasSum).toFixed(2);
+
+                return {
+                    ...credit,
+                    limite,
+                };
+            }),
+        );
+
+        return creditLimits;
+    }
+
+
+    async getCreditWithInvoices(filters: { mesfat: string, anofat: string }): Promise<any> {
+        const credits = await this.prisma.credit.findMany({
+            // where: {
+            //     type: {
+            //         not: 'AVISTA'
+            //     },
+            // },
             orderBy: { diavenc: 'asc' },
             select: {
                 id: true,
@@ -95,8 +148,6 @@ export class CreditoService {
             };
         });
     }
-
-
 
     findOne(id: string) {
         return `This action returns a #${id} credito`;

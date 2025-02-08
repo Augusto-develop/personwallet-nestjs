@@ -7,6 +7,11 @@ WORKDIR /workspaces
 # Copie o package.json e o package-lock.json para o contêiner
 #COPY package*.json ./
 
+# RUN apk update && apk add --no-cache \
+#     curl \
+#     bash \
+#     apk add aws-cli
+
 # Instale as dependências do projeto
 #RUN npm install
 

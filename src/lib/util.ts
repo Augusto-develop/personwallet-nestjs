@@ -1,4 +1,5 @@
 import { format, toZonedTime } from 'date-fns-tz';
+import dayjs from './dayjs';
 
 /**
  * Retorna a data e hora atual no fuso horário de São Paulo no formato ISO 8601.
@@ -30,4 +31,8 @@ export function convertDateForDateTime(date: string | Date): string {
   const currentDate = new Date(date);
   const zonedDate = toZonedTime(currentDate, timeZone);
   return zonedDate.toISOString(); // Garante o formato ISO-8601 UTC
+}
+
+export function convertUTCForTimezoneLocal(date: string | Date, timezone: string = 'America/Sao_Paulo'): string {
+  return dayjs(date).tz(timezone).format('YYYY-MM-DD HH:mm:ss'); // Formata para o fuso horário especificado
 }

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { v4 as uuid, validate } from 'uuid';
-import { hashSync as bcryptHashSync } from 'bcrypt';
+import { hashSync as bcryptHashSync } from 'bcryptjs';
 import { PrismaService } from '../../database/PrismaService';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { Usuario } from './entity/usuario.entity';

@@ -14,9 +14,12 @@ import { DespesaService } from './despesa.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateDespesaDto } from './dto/create-despesa.dto';
 import { UpdateDespesaDto } from './dto/update-despesa.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard)
 @Controller('despesa')
+@ApiTags('Despesas')
+@ApiBearerAuth()
 export class DespesaController {
     constructor(private readonly despesaService: DespesaService) { }
 

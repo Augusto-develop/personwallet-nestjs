@@ -40,4 +40,7 @@ export class CreateMovimentoDto {
     @MaxLength(2)
     @IsOptional()
     mesfat?: string;
+
+    @IsUUID()   
+    userId: string;
 }

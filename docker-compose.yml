@@ -6,7 +6,8 @@ services:
             dockerfile: Dockerfile
         environment:
             - PORT=${PORT}
-            - DATABASE_URL=postgresql://postgres:postgres@db:5432/personwallet
+            - DATABASE_URL=${DATABASE_URL}
+            - DATABASE_URL_PROD=${DATABASE_URL_PROD}      
         ports:
             - '3000:3000'
         depends_on:
@@ -15,6 +16,8 @@ services:
             - C:\\PersonWalletDevContainer/www:/var/www
         extra_hosts:
             - 'host.docker.internal:host-gateway'
+        networks:
+            - personwallet-network
 
     db:
         image: postgres:13
@@ -28,3 +31,9 @@ services:
             - '5434:5432'
         volumes:
             - C:\\PersonWalletDevContainer/data:/var/lib/postgresql/data
+        networks:
+            - personwallet-network
+
+networks:
+  personwallet-network:
+    external: true

@@ -14,9 +14,12 @@ import { MovimentoService } from './movimento.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateMovimentoDto } from './dto/create-movimento.dto';
 import { UpdateMovimentoDto } from './dto/update-movimento.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseGuards(AuthGuard)
 @Controller('movimento')
+@ApiTags('Movimento')
+@ApiBearerAuth()
 export class MovimentoController {
     constructor(private readonly movimentoService: MovimentoService) { }
 

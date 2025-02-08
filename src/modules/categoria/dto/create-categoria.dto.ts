@@ -15,4 +15,7 @@ export class CreateCategoriaDto {
     @MinLength(3)
     @MaxLength(50)
     descricao: string;
+
+    @IsUUID()   
+    userId: string;
 }

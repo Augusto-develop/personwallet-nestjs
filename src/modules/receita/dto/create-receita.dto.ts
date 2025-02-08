@@ -19,6 +19,9 @@ export class CreateReceitaDto {
     @IsUUID()
     carteiraId: string;
 
+    @IsUUID()
+    categoriaId: string;
+
     @IsString()
     @MinLength(3)
     @MaxLength(50)
@@ -29,4 +32,7 @@ export class CreateReceitaDto {
 
     @IsDecimal()
     valor: Decimal;
+
+    @IsUUID()   
+    userId: string;
 } 

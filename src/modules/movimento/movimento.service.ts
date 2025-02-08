@@ -4,7 +4,8 @@ import {
 import { PrismaService } from 'src/database/PrismaService';
 import { CreateMovimentoDto } from './dto/create-movimento.dto';
 import { UpdateMovimentoDto } from './dto/update-movimento.dto';
-import dayjs from 'dayjs';
+import dayjs from 'src/lib/dayjs';
+import { convertUTCForTimezoneLocal } from 'src/lib/util';
 
 @Injectable()
 export class MovimentoService {
@@ -15,7 +16,14 @@ export class MovimentoService {
             data,
         });
 
-        return movimento;
+        const movimentoFormatDate = {
+            ...movimento,
+            ocorrencia: convertUTCForTimezoneLocal(movimento.ocorrencia),
+            createdAt: convertUTCForTimezoneLocal(movimento.createdAt),
+            updatedAt: convertUTCForTimezoneLocal(movimento.updatedAt),
+        };
+    
+        return movimentoFormatDate;
     }
 
     async createPagamento(data: CreateMovimentoDto) {

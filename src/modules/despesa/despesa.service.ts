@@ -17,12 +17,58 @@ export class DespesaService {
     constructor(private prisma: PrismaService) { }
 
     async create(data: CreateDespesaDto) {
-        const despesa = await this.prisma.despesa.create({
-            data,
-        });
+        return this.prisma.$transaction(async (prisma) => {
+            // Cria a despesa
+            const despesa = await prisma.despesa.create({
+                
+                data: {
+                    descricao: data.descricao,
+                    categoria: {
+                        connect: { id: data.categoriaId },
+                    },
+                    anofat: data.anofat,
+                    mesfat: data.mesfat,
+                    numparc: data.numparc,
+                    qtdeparc: data.qtdeparc,
+                    lancamento: data.lancamento,
+                    valor: data.valor,
+                    generateparc: data.generateparc,                    
+                    credit: data.creditId
+                        ? {
+                            connect: { id: data.creditId }, // Conecta ao registro existente
+                        }
+                        : undefined,
+                    user: { connect: { id: "55421222" } },
+                },
+            });
 
-        return despesa;
+            // Verifica se o creditId pertence a um Credit do tipo 'AVISTA'
+            if (data.creditId) {
+                const credit = await prisma.credit.findUnique({
+                    where: { id: data.creditId },
+                    select: { type: true },
+                });
+
+                if (credit?.type === TypeCredit.AVISTA) {
+                    // Cria um movimento relacionado à despesa
+                    await prisma.movimento.create({
+                        data: {
+                            cartdebito: data.carteiraPg,
+                            ocorrencia: despesa.lancamento,
+                            valor: despesa.valor,
+                            anofat: despesa.anofat,
+                            mesfat: despesa.mesfat,
+                            creditId: data.creditId,
+                            user: { connect: { id: "55421222" } },
+                        },
+                    });
+                }
+            }
+
+            return despesa;
+        });
     }
+    
 
     async findAll(filters?: {
         creditId?: string;
@@ -45,7 +91,7 @@ export class DespesaService {
         }
 
         if (filters?.type) {
-            where.credits = { type: filters.type };
+            where.credit = { type: filters.type };
             where.creditId = { not: null };
         }
 

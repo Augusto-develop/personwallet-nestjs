@@ -1,13 +1,18 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
+import { ApiBearerAuth, ApiTags, ApiBody  } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
 
-
+@UseGuards(AuthGuard)
 @Controller('usuario')
+@ApiTags('Usuarios')
+@ApiBearerAuth()
 export class UsuarioController {
     constructor(private readonly usuarioService: UsuarioService) { }
 
     @Post()
+    @ApiBody({ type: CreateUsuarioDto }) // Relaciona o DTO com o Swagger
     create(@Body() usuario: CreateUsuarioDto) {
         return this.usuarioService.create(usuario);
     }

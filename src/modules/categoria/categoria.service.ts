@@ -26,7 +26,7 @@ export class CategoriaService {
     }
 
     findAll() {
-        return this.prisma.categoria.findMany();
+        return this.prisma.categoria.findMany({orderBy:{descricao: 'asc'}});
     }
 
     findOne(id: string) {
