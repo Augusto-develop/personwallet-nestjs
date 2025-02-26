@@ -5,6 +5,5 @@
             "src": "/(.*)",
             "dest": "/dist/main.js"
         }
-    ],
-    "main": "dist/main.js"
+    ]    
 }
