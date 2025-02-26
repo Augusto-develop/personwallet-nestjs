@@ -59,6 +59,7 @@ export class CreateDespesaDto {
     @IsOptional()
     carteiraPg?: string;
 
-    @IsUUID()   
+    @IsUUID()  
+    @IsOptional() 
     userId: string;
 }

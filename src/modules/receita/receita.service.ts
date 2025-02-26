@@ -23,6 +23,9 @@ export class ReceitaService {
                 carteira: {
                     connect: { id: data.carteiraId },
                 },
+                user: {
+                    connect: { id: "357d6fff-f102-4e45-a992-cd665ba0caff" }
+                }
             },
         });
 

@@ -1,227 +1,227 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model User {
-  id              String    @id @default(uuid())
-  name            String    @db.VarChar(50)
-  email           String    @unique @db.VarChar(100)
-  emailVerifiedAt DateTime? @map("email_verified_at")
-  password        String    @db.VarChar(255)
-  rememberToken   String?   @map("remember_token") @db.VarChar(255)
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+    id              String    @id @default(uuid())
+    name            String    @db.VarChar(50)
+    email           String    @unique @db.VarChar(100)
+    emailVerifiedAt DateTime? @map("email_verified_at")
+    password        String    @db.VarChar(255)
+    rememberToken   String?   @map("remember_token") @db.VarChar(255)
+    createdAt       DateTime  @default(now()) @map("created_at")
+    updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  carteiras    Carteira[]   @relation("UserCarteira") // Relacionamento com Carteira
-  categorias   Categoria[]  @relation("UserCategoria") // Relacionamento com Carteira
-  credits      Credit[]     @relation("UserCredit") // Relacionamento com Credit
-  receitas     Receita[]    @relation("UserReceita") // Relacionamento com Receita
-  despesas     Despesa[]    @relation("UserDespesa") // Relacionamento com Despesa  
-  movimentos   Movimento[]  @relation("UserMovimento") // Relacionamento com Movimento  
-  fornecedores Fornecedor[] @relation("UserFornecedor") // Relacionamento com Fornecedor  
+    carteiras    Carteira[]   @relation("UserCarteira") // Relacionamento com Carteira
+    categorias   Categoria[]  @relation("UserCategoria") // Relacionamento com Carteira
+    credits      Credit[]     @relation("UserCredit") // Relacionamento com Credit
+    receitas     Receita[]    @relation("UserReceita") // Relacionamento com Receita
+    despesas     Despesa[]    @relation("UserDespesa") // Relacionamento com Despesa  
+    movimentos   Movimento[]  @relation("UserMovimento") // Relacionamento com Movimento  
+    fornecedores Fornecedor[] @relation("UserFornecedor") // Relacionamento com Fornecedor  
 
-  @@map("users")
+    @@map("users")
 }
 
 model PasswordReset {
-  email     String    @id
-  token     String
-  createdAt DateTime? @map("created_at")
+    email     String    @id
+    token     String
+    createdAt DateTime? @map("created_at")
 
-  @@index([email])
-  @@map("password_resets")
+    @@index([email])
+    @@map("password_resets")
 }
 
 model FailedJob {
-  id         String   @id @default(uuid())
-  connection String
-  queue      String
-  payload    String
-  exception  String
-  failedAt   DateTime @default(now()) @map("failed_at")
+    id         String   @id @default(uuid())
+    connection String
+    queue      String
+    payload    String
+    exception  String
+    failedAt   DateTime @default(now()) @map("failed_at")
 
-  @@map("failed_jobs")
+    @@map("failed_jobs")
 }
 
 model PersonalAccessToken {
-  id            String    @id @default(uuid())
-  tokenableId   BigInt
-  tokenableType String
-  name          String
-  token         String    @unique
-  abilities     String?
-  lastUsedAt    DateTime? @map("last_used_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+    id            String    @id @default(uuid())
+    tokenableId   BigInt
+    tokenableType String
+    name          String
+    token         String    @unique
+    abilities     String?
+    lastUsedAt    DateTime? @map("last_used_at")
+    createdAt     DateTime  @default(now()) @map("created_at")
+    updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  @@map("personal_access_tokens")
+    @@map("personal_access_tokens")
 }
 
 model Carteira {
-  id        String      @id @default(uuid())
-  descricao String      @db.VarChar(50)
-  ativo     Boolean
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt @map("updated_at")
-  userId    String
-  emissor   Emissor
-  creditos  Movimento[] @relation("Creditos")
-  debitos   Movimento[] @relation("Debitos")
-  receitas  Receita[]
-  user      User        @relation("UserCarteira", fields: [userId], references: [id])
+    id        String      @id @default(uuid())
+    descricao String      @db.VarChar(50)
+    ativo     Boolean
+    createdAt DateTime    @default(now()) @map("created_at")
+    updatedAt DateTime    @updatedAt @map("updated_at")
+    userId    String
+    emissor   Emissor
+    creditos  Movimento[] @relation("Creditos")
+    debitos   Movimento[] @relation("Debitos")
+    receitas  Receita[]
+    user      User        @relation("UserCarteira", fields: [userId], references: [id])
 
-  @@map("carteiras")
+    @@map("carteiras")
 }
 
 model Categoria {
-  id        String    @id @default(uuid())
-  descricao String    @db.VarChar(50)
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  userId    String
-  credit    Credit[]
-  despesa   Despesa[]
-  receita   Receita[]
-  user      User      @relation("UserCategoria", fields: [userId], references: [id])
+    id        String    @id @default(uuid())
+    descricao String    @db.VarChar(50)
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime  @updatedAt @map("updated_at")
+    userId    String
+    credit    Credit[]
+    despesa   Despesa[]
+    receita   Receita[]
+    user      User      @relation("UserCategoria", fields: [userId], references: [id])
 
-  @@map("categorias")
+    @@map("categorias")
 }
 
 model Credit {
-  id           String      @id @default(uuid())
-  descricao    String      @db.VarChar(30)
-  type         TypeCredit  @default(CARTAO)
-  diavenc      String?     @db.VarChar(2)
-  diafech      String?     @db.VarChar(2)
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
-  bandeira     Bandeira?
-  valorcredito Decimal?    @db.Decimal(9, 2)
-  emissor      Emissor?
-  categoriaId  String?
-  userId       String
-  categoria    Categoria?  @relation(fields: [categoriaId], references: [id])
-  despesas     Despesa[]   @relation("CreditDespesas")
-  movimentos   Movimento[] @relation("CreditMovimentos")
-  user         User        @relation("UserCredit", fields: [userId], references: [id])
+    id           String      @id @default(uuid())
+    descricao    String      @db.VarChar(30)
+    type         TypeCredit  @default(CARTAO)
+    diavenc      String?     @db.VarChar(2)
+    diafech      String?     @db.VarChar(2)
+    createdAt    DateTime    @default(now()) @map("created_at")
+    updatedAt    DateTime    @updatedAt @map("updated_at")
+    bandeira     Bandeira?
+    valorcredito Decimal?    @db.Decimal(9, 2)
+    emissor      Emissor?
+    categoriaId  String?
+    userId       String
+    categoria    Categoria?  @relation(fields: [categoriaId], references: [id])
+    despesas     Despesa[]   @relation("CreditDespesas")
+    movimentos   Movimento[] @relation("CreditMovimentos")
+    user         User        @relation("UserCredit", fields: [userId], references: [id])
 
-  @@index([categoriaId])
-  @@map("credits")
+    @@index([categoriaId])
+    @@map("credits")
 }
 
 model Despesa {
-  id           String    @id @default(uuid())
-  categoriaId  String
-  anofat       String    @db.VarChar(4)
-  mesfat       String    @db.VarChar(2)
-  descricao    String    @db.VarChar(50)
-  numparc      Int
-  qtdeparc     Int
-  valor        Decimal   @db.Decimal(9, 2)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  creditId     String?
-  lancamento   DateTime
-  parentId     String?
-  generateparc Boolean   @default(false)
-  userId       String
-  categoria    Categoria @relation(fields: [categoriaId], references: [id])
-  credit       Credit?   @relation("CreditDespesas", fields: [creditId], references: [id], onDelete: Restrict)
-  parent       Despesa?  @relation("ParentChild", fields: [parentId], references: [id], onDelete: Restrict)
-  children     Despesa[] @relation("ParentChild")
-  user         User      @relation("UserDespesa", fields: [userId], references: [id])
+    id           String    @id @default(uuid())
+    categoriaId  String
+    anofat       String    @db.VarChar(4)
+    mesfat       String    @db.VarChar(2)
+    descricao    String    @db.VarChar(50)
+    numparc      Int
+    qtdeparc     Int
+    valor        Decimal   @db.Decimal(9, 2)
+    createdAt    DateTime  @default(now()) @map("created_at")
+    updatedAt    DateTime  @updatedAt @map("updated_at")
+    creditId     String?
+    lancamento   DateTime
+    parentId     String?
+    generateparc Boolean   @default(false)
+    userId       String
+    categoria    Categoria @relation(fields: [categoriaId], references: [id])
+    credit       Credit?   @relation("CreditDespesas", fields: [creditId], references: [id], onDelete: Restrict)
+    parent       Despesa?  @relation("ParentChild", fields: [parentId], references: [id], onDelete: Restrict)
+    children     Despesa[] @relation("ParentChild")
+    user         User      @relation("UserDespesa", fields: [userId], references: [id])
 
-  @@index([creditId])
-  @@index([categoriaId])
-  @@index([parentId])
-  @@map("despesas")
+    @@index([creditId])
+    @@index([categoriaId])
+    @@index([parentId])
+    @@map("despesas")
 }
 
 model Movimento {
-  id          String    @id @default(uuid())
-  cartdebito  String
-  cartcredito String?
-  ocorrencia  DateTime
-  valor       Decimal   @db.Decimal(9, 2)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  anofat      String?   @db.VarChar(4)
-  creditId    String?
-  mesfat      String?   @db.VarChar(2)
-  userId      String
-  credito     Carteira? @relation("Creditos", fields: [cartcredito], references: [id], onDelete: Restrict)
-  debito      Carteira  @relation("Debitos", fields: [cartdebito], references: [id])
-  credit      Credit?   @relation("CreditMovimentos", fields: [creditId], references: [id], onDelete: Restrict)
-  user        User      @relation("UserMovimento", fields: [userId], references: [id])
+    id          String    @id @default(uuid())
+    cartdebito  String
+    cartcredito String?
+    ocorrencia  DateTime
+    valor       Decimal   @db.Decimal(9, 2)
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime  @updatedAt @map("updated_at")
+    anofat      String?   @db.VarChar(4)
+    creditId    String?
+    mesfat      String?   @db.VarChar(2)
+    userId      String
+    credito     Carteira? @relation("Creditos", fields: [cartcredito], references: [id], onDelete: Restrict)
+    debito      Carteira  @relation("Debitos", fields: [cartdebito], references: [id])
+    credit      Credit?   @relation("CreditMovimentos", fields: [creditId], references: [id], onDelete: Restrict)
+    user        User      @relation("UserMovimento", fields: [userId], references: [id])
 
-  @@index([creditId])
-  @@map("movimentos")
+    @@index([creditId])
+    @@map("movimentos")
 }
 
 model Receita {
-  id          String    @id @default(uuid())
-  carteiraId  String
-  descricao   String    @db.VarChar(50)
-  datareceb   DateTime
-  valor       Decimal   @db.Decimal(9, 2)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  categoriaId String
-  userId      String
-  carteira    Carteira  @relation(fields: [carteiraId], references: [id])
-  categoria   Categoria @relation(fields: [categoriaId], references: [id])
-  user        User      @relation("UserReceita", fields: [userId], references: [id])
+    id          String    @id @default(uuid())
+    carteiraId  String
+    descricao   String    @db.VarChar(50)
+    datareceb   DateTime
+    valor       Decimal   @db.Decimal(9, 2)
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime  @updatedAt @map("updated_at")
+    categoriaId String
+    userId      String
+    carteira    Carteira  @relation(fields: [carteiraId], references: [id])
+    categoria   Categoria @relation(fields: [categoriaId], references: [id])
+    user        User      @relation("UserReceita", fields: [userId], references: [id])
 
-  @@index([carteiraId])
-  @@index([categoriaId])
-  @@map("receitas")
+    @@index([carteiraId])
+    @@index([categoriaId])
+    @@map("receitas")
 }
 
 model Fornecedor {
-  id        String   @id @default(uuid())
-  descricao String   @db.VarChar(50)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  userId    String
-  user      User     @relation("UserFornecedor", fields: [userId], references: [id])
+    id        String   @id @default(uuid())
+    descricao String   @db.VarChar(50)
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    userId    String
+    user      User     @relation("UserFornecedor", fields: [userId], references: [id])
 
-  @@map("fornecedores")
+    @@map("fornecedores")
 }
 
 enum TypeCredit {
-  CARTAO
-  EMPRESTIMO
-  FINANCIAMENTO
-  DESPESAFIXA
-  AVISTA
+    CARTAO
+    EMPRESTIMO
+    FINANCIAMENTO
+    DESPESAFIXA
+    AVISTA
 }
 
 enum Bandeira {
-  VISA
-  MASTERCARD
+    VISA
+    MASTERCARD
 }
 
 enum Emissor {
-  ITAU
-  BRADESCO
-  BANCOBRASIL
-  SANTANDER
-  CAIXA
-  NUBANK
-  MERCADOPAGO
-  ATACADAO
-  NOVUCARD
-  OUZE
-  RIACHUELO
-  BRASILCARD
-  NEON
-  C6BANK
-  MIDWAY
-  BANCOPAN
+    ITAU
+    BRADESCO
+    BANCOBRASIL
+    SANTANDER
+    CAIXA
+    NUBANK
+    MERCADOPAGO
+    ATACADAO
+    NOVUCARD
+    OUZE
+    RIACHUELO
+    BRASILCARD
+    NEON
+    C6BANK
+    MIDWAY
+    BANCOPAN
 }

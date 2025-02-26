@@ -20,7 +20,7 @@ export class DespesaService {
         return this.prisma.$transaction(async (prisma) => {
             // Cria a despesa
             const despesa = await prisma.despesa.create({
-                
+
                 data: {
                     descricao: data.descricao,
                     categoria: {
@@ -32,13 +32,13 @@ export class DespesaService {
                     qtdeparc: data.qtdeparc,
                     lancamento: data.lancamento,
                     valor: data.valor,
-                    generateparc: data.generateparc,                    
+                    generateparc: data.generateparc,
                     credit: data.creditId
                         ? {
                             connect: { id: data.creditId }, // Conecta ao registro existente
                         }
                         : undefined,
-                    user: { connect: { id: "55421222" } },
+                    user: { connect: { id: "357d6fff-f102-4e45-a992-cd665ba0caff" } },
                 },
             });
 
@@ -53,13 +53,19 @@ export class DespesaService {
                     // Cria um movimento relacionado à despesa
                     await prisma.movimento.create({
                         data: {
-                            cartdebito: data.carteiraPg,
+                            debito: {
+                                connect: { id: data.carteiraPg },
+                            },                           
                             ocorrencia: despesa.lancamento,
                             valor: despesa.valor,
                             anofat: despesa.anofat,
-                            mesfat: despesa.mesfat,
-                            creditId: data.creditId,
-                            user: { connect: { id: "55421222" } },
+                            mesfat: despesa.mesfat,                           
+                            credit: {
+                                connect: { id: data.creditId }
+                            },                        
+                            user: {
+                                connect: { id: "357d6fff-f102-4e45-a992-cd665ba0caff" }, // Certifique-se que o usuário existe
+                            }
                         },
                     });
                 }
@@ -68,7 +74,7 @@ export class DespesaService {
             return despesa;
         });
     }
-    
+
 
     async findAll(filters?: {
         creditId?: string;
@@ -196,6 +202,7 @@ export class DespesaService {
                 valor: despesa.valor,
                 generateparc: false,
                 parentId: id,
+                userId: "357d6fff-f102-4e45-a992-cd665ba0caff"
             });
         }
 
@@ -258,6 +265,7 @@ export class DespesaService {
                 valor: credit.valorcredito,
                 generateparc: false,
                 parentId: null,
+                userId: "357d6fff-f102-4e45-a992-cd665ba0caff"
             });
         }
 
