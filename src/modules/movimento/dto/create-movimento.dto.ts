@@ -42,5 +42,6 @@ export class CreateMovimentoDto {
     mesfat?: string;
 
     @IsUUID()   
+    @IsOptional()
     userId: string;
 }

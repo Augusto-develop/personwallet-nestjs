@@ -21,8 +21,16 @@ export class CarteiraService {
         }
 
         const carteira = await this.prisma.carteira.create({
-            data,
-        });
+            data: {
+              descricao: data.descricao,
+              ativo: data.ativo,
+              emissor: data.emissor,
+              ...(data.userId
+                ? { user: { connect: { id: data.userId } } }
+                : {} // só conecta se vier userId
+              )
+            },
+          });
 
         return carteira;
     }

@@ -12,6 +12,14 @@ export class ReceitaService {
     constructor(private prisma: PrismaService) { }
 
     async create(data: CreateReceitaDto) {
+
+        // Objeto condicional para a conexão com o usuário
+        const userConnect = data.userId ? {
+            user: {
+                connect: { id: data.userId },
+            }
+        } : {}; // Se userId não existir, é um objeto vazio
+
         const receita = await this.prisma.receita.create({
             data: {
                 descricao: data.descricao,
@@ -23,9 +31,10 @@ export class ReceitaService {
                 carteira: {
                     connect: { id: data.carteiraId },
                 },
-                user: {
-                    connect: { id: "357d6fff-f102-4e45-a992-cd665ba0caff" }
-                }
+                // user: {
+                //     connect: { id: "357d6fff-f102-4e45-a992-cd665ba0caff" }
+                // }
+                ...userConnect 
             },
         });
 
@@ -46,13 +55,13 @@ export class ReceitaService {
             const ultimoDia = dayjs(`${ano}-${mes}-01`).endOf('month').toDate();
 
             // Define o filtro BETWEEN
-            where.datarecebe = {
+            where.datareceb = {
                 gte: primeiroDia, // Maior ou igual ao primeiro dia do mês
                 lte: ultimoDia    // Menor ou igual ao último dia do mês
             };
         }
 
-        console.log(where);
+        console.log(filters);
 
         return this.prisma.receita.findMany({
             where,

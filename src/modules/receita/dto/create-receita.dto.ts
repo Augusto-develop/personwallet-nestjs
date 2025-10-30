@@ -34,5 +34,6 @@ export class CreateReceitaDto {
     valor: Decimal;
 
     @IsUUID()   
+    @IsOptional() 
     userId: string;
 } 

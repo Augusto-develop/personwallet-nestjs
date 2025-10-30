@@ -16,7 +16,7 @@ export class CreateDespesaDto {
     @IsOptional()
     id?: string;
 
-    @IsUUID()
+    // @IsUUID()
     @IsOptional()
     creditId?: string;
 
@@ -45,7 +45,7 @@ export class CreateDespesaDto {
     qtdeparc: number;
 
     @IsDateString()
-    lancamento: string;
+    lancamento: string;   
 
     @IsDecimal()
     valor: Decimal;
@@ -59,7 +59,7 @@ export class CreateDespesaDto {
     @IsOptional()
     carteiraPg?: string;
 
-    @IsUUID()  
-    @IsOptional() 
+    @IsUUID()
+    @IsOptional()
     userId: string;
 }

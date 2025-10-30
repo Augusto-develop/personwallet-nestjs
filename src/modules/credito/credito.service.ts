@@ -15,13 +15,17 @@ export class CreditoService {
             data: {
                 descricao: data.descricao,
                 type: data.type || 'CARTAO',
-                categoria: data.categoriaId ? { connect: { id: data.categoriaId } } : null,
+                //categoria: data.categoriaId ? { connect: { id: data.categoriaId } } : null,
                 valorcredito: data.valorcredito || null,
                 diavenc: data.diavenc,
                 diafech: data.diafech,
                 bandeira: data.bandeira,
                 // userId: "55421222"
-                user: { connect: { id: "55421222" } },
+                user: { connect: { id: "357d6fff-f102-4e45-a992-cd665ba0caff" } },
+                ...(data.categoriaId
+                    ? { categoria: { connect: { id: data.categoriaId } } }
+                    : {} // não passa nada se não tiver categoriaId
+                  )
             }
         });
 
@@ -138,15 +142,22 @@ export class CreditoService {
         });
 
         // Mapeia os resultados para somar os valores das despesas por credit
-        return credits.map(credit => {
-            const totalFatura = credit.despesas.reduce((acc, despesa) => acc + despesa.valor.toNumber(), 0);
-            // Remove o campo despesas do retorno
-            const { despesas, ...creditWithoutDespesas } = credit;
-            return {
+        return credits
+            .map(credit => {
+                const totalFatura = credit.despesas.reduce(
+                (acc, despesa) => acc + despesa.valor.toNumber(),
+                0
+                );
+
+                const { despesas, ...creditWithoutDespesas } = credit;
+
+                return {
                 ...creditWithoutDespesas,
                 totalFatura,
-            };
-        });
+                };
+            })
+            .filter(credit => credit.totalFatura > 0); // só mantém os que têm fatura > 0
+
     }
 
     findOne(id: string) {

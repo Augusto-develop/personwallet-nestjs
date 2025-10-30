@@ -20,10 +20,11 @@ export class CreateCarteiraDto {
     @IsOptional()
     @ApiPropertyOptional({
         description: 'Status da Carteira ',
-        example: 'true=Ativo | false=Inativo'        
+        example: 'true=Ativo | false=Inativo'
     })
     ativo: boolean;
 
-    @IsUUID()   
-    userId: string;
+    @IsOptional()
+    @IsUUID()
+    userId?: string;
 }

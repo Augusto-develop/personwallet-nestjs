@@ -36,3 +36,20 @@ export function convertDateForDateTime(date: string | Date): string {
 export function convertUTCForTimezoneLocal(date: string | Date, timezone: string = 'America/Sao_Paulo'): string {
   return dayjs(date).tz(timezone).format('YYYY-MM-DD HH:mm:ss'); // Formata para o fuso horário especificado
 }
+
+export function addMonthSafe(date: Date): Date {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  // Cria nova data no mesmo dia, próximo mês
+  const nextMonthDate = new Date(year, month + 1, day);
+
+  // Garante que o mês não “transbordou” (ex: 31/01 -> 03/03)
+  if (nextMonthDate.getMonth() !== (month + 1) % 12) {
+      // Ajusta para último dia do próximo mês
+      return new Date(year, month + 2, 0);
+  }
+
+  return nextMonthDate;
+}

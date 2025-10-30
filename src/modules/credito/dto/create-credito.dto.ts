@@ -54,6 +54,6 @@ export class CreateCreditoDto {
     @IsOptional()
     categoriaId?: string;
 
-    @IsUUID()   
-    userId: string;
+    // @IsUUID()   
+    // userId: string;
 }

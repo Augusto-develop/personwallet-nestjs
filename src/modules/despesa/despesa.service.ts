@@ -83,26 +83,50 @@ export class DespesaService {
         type?: string;
     }) {
         const where: any = {};
-
+    
         if (filters?.creditId) {
             where.creditId = filters.creditId;
         }
-
+    
         if (filters?.mesfat) {
             where.mesfat = filters.mesfat;
         }
-
+    
         if (filters?.anofat) {
             where.anofat = filters.anofat;
         }
-
+    
         if (filters?.type) {
             where.credit = { type: filters.type };
             where.creditId = { not: null };
         }
-
-        return this.prisma.despesa.findMany({ where, orderBy: { lancamento: 'asc' } });
+    
+        const despesas = await this.prisma.despesa.findMany({
+            where,
+            orderBy: { lancamento: 'asc' },
+            include: {
+                credit: {
+                    select: {
+                        diavenc: true
+                    }
+                }
+            }
+        });
+    
+        // Monta o vencimento como anofat-mesfat-diavenc
+        const result = despesas.map(d => {
+            const dia = d.credit?.diavenc?.toString().padStart(2, '0') || '01';
+            const mes = d.mesfat.padStart(2, '0');
+            const ano = d.anofat;
+            return {
+                ...d,
+                vencimento: `${ano}-${mes}-${dia}`
+            };
+        });
+    
+        return result;
     }
+    
 
     async update(id: string, data: UpdateDespesaDto) {
         const despesaExists = await this.prisma.despesa.findUnique({
